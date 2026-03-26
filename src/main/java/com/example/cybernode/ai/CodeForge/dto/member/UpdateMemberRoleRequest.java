@@ -1,4 +1,8 @@
 package com.example.cybernode.ai.CodeForge.dto.member;
 
-public record UpdateMemberRoleRequest() {
+import com.example.cybernode.ai.CodeForge.enums.ProjectRole;
+
+public record UpdateMemberRoleRequest(
+        ProjectRole role
+) {
 }

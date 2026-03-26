@@ -2,6 +2,7 @@ package com.example.cybernode.ai.CodeForge.controller;
 
 import com.example.cybernode.ai.CodeForge.dto.auth.UserProfileResponse;
 import com.example.cybernode.ai.CodeForge.dto.member.MemberResponse;
+import com.example.cybernode.ai.CodeForge.dto.member.UpdateMemberRoleRequest;
 import com.example.cybernode.ai.CodeForge.dto.project.InviteMemberRequest;
 import com.example.cybernode.ai.CodeForge.service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,23 @@ public class ProjectMemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 projectMemberService.inviteMember(projectId,request,userId)
         );
+    }
+
+    @PatchMapping("/{memberId}")
+    public ResponseEntity<MemberResponse> updateMemberRole(
+            @PathVariable Long projectId,
+            @PathVariable Long memberId,
+            @RequestBody UpdateMemberRoleRequest request){
+        Long userId=1L;
+        return ResponseEntity.ok(projectMemberService.updateMemberRole(userId,projectId,memberId,request));
+    }
+
+    @DeleteMapping("/{memberId}")
+    public ResponseEntity<MemberResponse> deleteMemberRole(
+            @PathVariable Long projectId,
+            @PathVariable Long memberID){
+        Long userId=1l;
+        return ResponseEntity.ok(projectMemberService.deleteProjectMember(userId,projectId,memberID));
     }
 
 }
