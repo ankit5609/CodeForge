@@ -1,10 +1,10 @@
 package com.example.cybernode.ai.CodeForge.entity;
 
 import com.example.cybernode.ai.CodeForge.enums.ProjectRole;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -15,16 +15,23 @@ import java.time.Instant;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
+@Table(name = "project_members")
 public class ProjectMember {
 
-    @Id
+    @EmbeddedId
     ProjectMemberId id;
 
+    @ManyToOne
+    @MapsId("projectId")
     Project project;
 
+    @ManyToOne
+    @MapsId("userId")
     User user;
 
-    ProjectRole role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    ProjectRole projectRole;
 
     Instant invitedAt;
 

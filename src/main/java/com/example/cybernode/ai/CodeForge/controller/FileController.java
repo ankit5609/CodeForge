@@ -21,9 +21,9 @@ public class FileController {
         return ResponseEntity.ok(fileService.getFileTree(projectId,userId));
     }
 
-    @GetMapping("/{path:**}")
-    public ResponseEntity<FileContentResponse> getFile(@PathVariable Long projectId,
-                                                       @PathVariable String path){
+    @GetMapping("/{*path}")
+    public ResponseEntity<FileContentResponse> getFile(@PathVariable("projectId") Long projectId,
+                                                       @PathVariable("path") String path){
         Long userId=1L;
         return ResponseEntity.ok(fileService.getFileContent(projectId,path,userId));
     }

@@ -2,6 +2,8 @@ package com.example.cybernode.ai.CodeForge.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -10,6 +12,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +26,9 @@ public class User {
     private String name;
     @Setter
     private String avatarUrl;
-
+    @CreationTimestamp
     private Instant createdAt;
-
+    @UpdateTimestamp
     private Instant updatedAt;
 
     private Instant deletedAt;

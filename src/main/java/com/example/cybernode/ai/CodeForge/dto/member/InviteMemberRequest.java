@@ -1,4 +1,4 @@
-package com.example.cybernode.ai.CodeForge.dto.project;
+package com.example.cybernode.ai.CodeForge.dto.member;
 
 import com.example.cybernode.ai.CodeForge.enums.ProjectRole;
 
