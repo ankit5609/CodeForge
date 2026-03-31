@@ -19,13 +19,11 @@ public class User {
     private Long id;
     @Column(nullable = false, unique = true)
     @Setter
-    private String email;
+    private String username;
     @Setter
-    private String passwordHash;
+    private String password;
     @Setter
     private String name;
-    @Setter
-    private String avatarUrl;
     @CreationTimestamp
     private Instant createdAt;
     @UpdateTimestamp

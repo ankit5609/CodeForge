@@ -4,8 +4,13 @@ import com.example.cybernode.ai.CodeForge.dto.project.ProjectRequest;
 import com.example.cybernode.ai.CodeForge.dto.project.ProjectResponse;
 import com.example.cybernode.ai.CodeForge.dto.project.ProjectSummaryResponse;
 import com.example.cybernode.ai.CodeForge.entity.Project;
+import com.example.cybernode.ai.CodeForge.entity.ProjectMember;
+import com.example.cybernode.ai.CodeForge.entity.ProjectMemberId;
 import com.example.cybernode.ai.CodeForge.entity.User;
+import com.example.cybernode.ai.CodeForge.enums.ProjectRole;
+import com.example.cybernode.ai.CodeForge.error.ResourceNotFoundException;
 import com.example.cybernode.ai.CodeForge.mapper.ProjectMapper;
+import com.example.cybernode.ai.CodeForge.repository.ProjectMemberRepository;
 import com.example.cybernode.ai.CodeForge.repository.ProjectRepository;
 import com.example.cybernode.ai.CodeForge.repository.UserRepository;
 import com.example.cybernode.ai.CodeForge.service.ProjectMemberService;
@@ -27,15 +32,28 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectRepository projectRepository;
     UserRepository userRepository;
     ProjectMapper projectMapper;
+    ProjectMemberRepository projectMemberRepository;
 
     @Override
     public ProjectResponse createProject(ProjectRequest request, Long userId) {
-        User owner=userRepository.findById(userId).orElseThrow();
+        User owner=userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("user",userId.toString())
+        );
         Project project=Project.builder().
                 name(request.name()).
-                owner(owner).
                 isPublic(false).
                 build();
+        project = projectRepository.save(project);
+        ProjectMemberId projectMemberId=new ProjectMemberId(project.getId(), owner.getId());
+        ProjectMember projectMember=ProjectMember.builder()
+                .id(projectMemberId)
+                .projectRole(ProjectRole.OWNER)
+                .user(owner)
+                .acceptedAt(Instant.now())
+                .invitedAt(Instant.now())
+                .project(project)
+                .build();
+        projectMemberRepository.save(projectMember);
         project=projectRepository.save(project);
         return projectMapper.toProjectResponse(project);
 
@@ -57,9 +75,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
         Project project=getAccessibleProjectById(id,userId);
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("You are not allowed to update");
-        }
         project.setName(request.name());
         project=projectRepository.save(project);
         return projectMapper.toProjectResponse(project);
@@ -68,15 +83,13 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void softdelete(Long id, Long userId) {
         Project project=getAccessibleProjectById(id,userId);
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("You are not allowed to delete");
-        }
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
     }
 
     /// INTERNAL FUNCTIONS
     public  Project getAccessibleProjectById(Long projectId,Long userId){
-        return projectRepository.findAccessibleProjectById(projectId,userId).orElseThrow();
+        return projectRepository.findAccessibleProjectById(projectId,userId)
+                .orElseThrow(()-> new ResourceNotFoundException("Project",projectId.toString()));
     }
 }

@@ -1,5 +1,6 @@
 package com.example.cybernode.ai.CodeForge.mapper;
 
+import com.example.cybernode.ai.CodeForge.dto.auth.SignUpRequest;
 import com.example.cybernode.ai.CodeForge.dto.auth.UserProfileResponse;
 import com.example.cybernode.ai.CodeForge.dto.member.MemberResponse;
 import com.example.cybernode.ai.CodeForge.entity.ProjectMember;
@@ -15,5 +16,7 @@ public interface UserMapper {
     @Mapping(target = "projectRole", constant = "OWNER")
     MemberResponse toMemberResponse(User owner);
 
+
+    User toEntity(SignUpRequest signUpRequest);
 
 }

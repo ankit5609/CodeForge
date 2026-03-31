@@ -20,7 +20,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,23 +37,18 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     @Override
     public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
         Project project = getAccessibleProjectById(projectId, userId);
-        List<MemberResponse> memberResponsesList = new ArrayList<>();
-        memberResponsesList.add(userMapper.toMemberResponse(project.getOwner()));
-        memberResponsesList.addAll(projectMemberRepository.findByIdProjectId(projectId).
+
+        return projectMemberRepository.findByIdProjectId(projectId).
                 stream().
                 map(projectMapper::toMemberResponseFromProjectMember).
-                toList());
-        return memberResponsesList;
+                toList();
     }
 
     @Override
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
         Project project = getAccessibleProjectById(projectId, userId);
 
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("Not allowed");
-        }
-        User invitee=userRepository.findByEmail(request.email()).orElseThrow();
+        User invitee=userRepository.findByUsername(request.username()).orElseThrow();
 
         if(invitee.getId().equals(userId)){
             throw new RuntimeException("Cannot invite yourself");
@@ -81,9 +75,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     public MemberResponse updateMemberRole(Long userId, Long projectId, Long memberId, UpdateMemberRoleRequest request) {
         Project project = getAccessibleProjectById(projectId, userId);
 
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("Not allowed");
-        }
 
         if(request.role().toString().equals("OWNER")){
             throw new RuntimeException("Invalid role Update");
@@ -100,10 +91,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     public void removeProjectMember(Long userId, Long projectId, Long memberId) {
 
         Project project = getAccessibleProjectById(projectId, userId);
-
-        if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("Not allowed");
-        }
 
         ProjectMemberId projectMemberId=new ProjectMemberId(projectId, memberId);
 
