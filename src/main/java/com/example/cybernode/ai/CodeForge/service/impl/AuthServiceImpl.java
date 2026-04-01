@@ -11,6 +11,7 @@ import com.example.cybernode.ai.CodeForge.service.AuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,17 +21,20 @@ public class AuthServiceImpl implements AuthService {
 
     UserRepository userRepository;
     UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
     @Override
     public AuthResponse signup(SignUpRequest request) {
         userRepository.findByUsername(request.username()).ifPresent(
                 user ->{
-                    throw new BadRequestException("User alresy exists with username: "+request.username());
+                    throw new BadRequestException("User already exists with username: "+request.username());
                 }
         );
+        User user=userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user=userRepository.save(user);
 
 
-
-        return null;
+        return new AuthResponse("dummy",userMapper.toUserProfileResponse(user));
     }
 
     @Override
