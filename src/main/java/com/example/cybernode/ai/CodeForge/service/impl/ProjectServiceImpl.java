@@ -13,6 +13,7 @@ import com.example.cybernode.ai.CodeForge.mapper.ProjectMapper;
 import com.example.cybernode.ai.CodeForge.repository.ProjectMemberRepository;
 import com.example.cybernode.ai.CodeForge.repository.ProjectRepository;
 import com.example.cybernode.ai.CodeForge.repository.UserRepository;
+import com.example.cybernode.ai.CodeForge.security.AuthUtil;
 import com.example.cybernode.ai.CodeForge.service.ProjectMemberService;
 import com.example.cybernode.ai.CodeForge.service.ProjectService;
 import jakarta.transaction.Transactional;
@@ -33,9 +34,11 @@ public class ProjectServiceImpl implements ProjectService {
     UserRepository userRepository;
     ProjectMapper projectMapper;
     ProjectMemberRepository projectMemberRepository;
+    AuthUtil authUtil;
 
     @Override
-    public ProjectResponse createProject(ProjectRequest request, Long userId) {
+    public ProjectResponse createProject(ProjectRequest request) {
+        Long userId=authUtil.getCurrentUserId();
         User owner=userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user",userId.toString())
         );
@@ -60,20 +63,23 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectSummaryResponse> getUserProjects(Long userId) {
+    public List<ProjectSummaryResponse> getUserProjects() {
 
+        Long userId=authUtil.getCurrentUserId();
         return projectMapper.toListOfProjectSummaryResponse(projectRepository.findAllAccessibleByUser(userId));
     }
 
     @Override
-    public ProjectResponse getUserProjectById(Long id, Long userId) {
+    public ProjectResponse getUserProjectById(Long id) {
+        Long userId=authUtil.getCurrentUserId();
         Project project=getAccessibleProjectById(id,userId);
         return projectMapper.toProjectResponse(project);
     }
 
 
     @Override
-    public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
+    public ProjectResponse updateProject(Long id, ProjectRequest request) {
+        Long userId=authUtil.getCurrentUserId();
         Project project=getAccessibleProjectById(id,userId);
         project.setName(request.name());
         project=projectRepository.save(project);
@@ -81,14 +87,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public void softdelete(Long id, Long userId) {
+    public void softdelete(Long id) {
+        Long userId=authUtil.getCurrentUserId();
         Project project=getAccessibleProjectById(id,userId);
         project.setDeletedAt(Instant.now());
         projectRepository.save(project);
     }
 
     /// INTERNAL FUNCTIONS
-    public  Project getAccessibleProjectById(Long projectId,Long userId){
+    public  Project getAccessibleProjectById(Long projectId, Long userId){
         return projectRepository.findAccessibleProjectById(projectId,userId)
                 .orElseThrow(()-> new ResourceNotFoundException("Project",projectId.toString()));
     }
