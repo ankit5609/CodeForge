@@ -28,6 +28,10 @@ public class User implements UserDetails {
     private String password;
     @Setter
     private String name;
+
+    @Column(unique = true)
+    String stripeCustomerId;
+
     @CreationTimestamp
     private Instant createdAt;
     @UpdateTimestamp

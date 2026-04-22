@@ -27,8 +27,6 @@
 //
 //    Plan plan;
 //
-//    String stripeCustomerId;
-//
 //    String stripeSubscriptionId;
 //
 //    SubscriptionStatus status;
