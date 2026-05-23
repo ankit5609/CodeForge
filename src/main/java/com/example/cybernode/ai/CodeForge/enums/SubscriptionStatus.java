@@ -2,8 +2,8 @@ package com.example.cybernode.ai.CodeForge.enums;
 
 public enum SubscriptionStatus {
     ACTIVE,
-    TRAILING,
-    CANCELLED,
-    PAST_DEU,
+    TRIALING,
+    CANCELED,
+    PAST_DUE,
     INCOMPLETE
 }

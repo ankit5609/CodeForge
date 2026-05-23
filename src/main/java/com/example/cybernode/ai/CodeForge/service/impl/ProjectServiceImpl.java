@@ -8,6 +8,7 @@ import com.example.cybernode.ai.CodeForge.entity.ProjectMember;
 import com.example.cybernode.ai.CodeForge.entity.ProjectMemberId;
 import com.example.cybernode.ai.CodeForge.entity.User;
 import com.example.cybernode.ai.CodeForge.enums.ProjectRole;
+import com.example.cybernode.ai.CodeForge.error.BadRequestException;
 import com.example.cybernode.ai.CodeForge.error.ResourceNotFoundException;
 import com.example.cybernode.ai.CodeForge.mapper.ProjectMapper;
 import com.example.cybernode.ai.CodeForge.repository.ProjectMemberRepository;
@@ -16,6 +17,7 @@ import com.example.cybernode.ai.CodeForge.repository.UserRepository;
 import com.example.cybernode.ai.CodeForge.security.AuthUtil;
 import com.example.cybernode.ai.CodeForge.service.ProjectMemberService;
 import com.example.cybernode.ai.CodeForge.service.ProjectService;
+import com.example.cybernode.ai.CodeForge.service.SubscriptionService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +38,13 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectMapper projectMapper;
     ProjectMemberRepository projectMemberRepository;
     AuthUtil authUtil;
+    SubscriptionService subscriptionService;
 
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
+        if(subscriptionService.canCreateNewProject()){
+            throw new BadRequestException("User cannot create a New project with current Plan, Upgrade plan now");
+        }
         Long userId=authUtil.getCurrentUserId();
         User owner=userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("user",userId.toString())
