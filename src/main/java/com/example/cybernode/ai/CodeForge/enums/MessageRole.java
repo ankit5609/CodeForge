@@ -1,6 +1,6 @@
 package com.example.cybernode.ai.CodeForge.enums;
 
-public enum ChatRole {
+public enum MessageRole {
     USER,
     ASSISTANT,
     SYSTEM,

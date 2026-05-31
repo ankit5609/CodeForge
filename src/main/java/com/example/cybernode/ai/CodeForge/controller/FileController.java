@@ -2,7 +2,7 @@ package com.example.cybernode.ai.CodeForge.controller;
 
 import com.example.cybernode.ai.CodeForge.dto.project.FileContentResponse;
 import com.example.cybernode.ai.CodeForge.dto.project.FileNode;
-import com.example.cybernode.ai.CodeForge.service.FileService;
+import com.example.cybernode.ai.CodeForge.service.ProjectFileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/projects/{projectId}/files")
 public class FileController {
-    private final FileService fileService;
+    private final ProjectFileService fileService;
 
     @GetMapping
     public ResponseEntity<List<FileNode>> getFileTree(@PathVariable Long projectId){
