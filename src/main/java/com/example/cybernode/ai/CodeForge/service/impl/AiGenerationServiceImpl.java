@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -28,13 +30,14 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ProjectFileService projectFileService;
 
 
-    private static final Pattern FILE_TAG_PATTERN=Pattern.compile("<file path=\"([^\"]+)\">(/*?)</files>",Pattern.DOTALL);
-
+    private static final Pattern FILE_TAG_PATTERN =
+            Pattern.compile("<file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
     @Override
     @PreAuthorize("@security.canEditProject(#projectId)")
     public Flux<String> streamResponse(String userMessage, Long projectId) {
         Long userId= authUtil.getCurrentUserId();
 
+        SecurityContext securityContext = SecurityContextHolder.getContext();
         createChatSessionIfNotExists(projectId,userId);
 
         Map<String,Object> advisorParams=Map.of(
@@ -59,7 +62,12 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 })
                 .doOnComplete(()-> {
                     Schedulers.boundedElastic().schedule(()-> {
-                        parseAndSaveFiles(fullResponseBuffer.toString(), projectId);
+                        SecurityContextHolder.setContext(securityContext); // restore
+                        try {
+                            parseAndSaveFiles(fullResponseBuffer.toString(), projectId);
+                        } finally {
+                            SecurityContextHolder.clearContext();
+                        }
                     });
 
                 })

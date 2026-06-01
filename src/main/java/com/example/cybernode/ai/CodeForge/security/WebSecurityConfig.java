@@ -1,5 +1,6 @@
 package com.example.cybernode.ai.CodeForge.security;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
@@ -24,15 +25,25 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
 
-        httpSecurity
-                .csrf(csrfConfig-> csrfConfig.disable())
-                .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.
-                        requestMatchers("/api/auth/**","/webhooks/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        return httpSecurity.build();
+        try {
+            httpSecurity
+                    .csrf(csrfConfig-> csrfConfig.disable())
+                    .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                    .authorizeHttpRequests(auth -> auth
+                            .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()  // ← ye add karo
+                            .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                            .requestMatchers("/api/auth/**","/webhooks/**").permitAll()
+                            .anyRequest().authenticated()
+                    )
+                    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            return httpSecurity.build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Bean
