@@ -17,6 +17,7 @@ import com.example.cybernode.ai.CodeForge.repository.UserRepository;
 import com.example.cybernode.ai.CodeForge.security.AuthUtil;
 import com.example.cybernode.ai.CodeForge.service.ProjectMemberService;
 import com.example.cybernode.ai.CodeForge.service.ProjectService;
+import com.example.cybernode.ai.CodeForge.service.ProjectTemplateService;
 import com.example.cybernode.ai.CodeForge.service.SubscriptionService;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -39,10 +40,11 @@ public class ProjectServiceImpl implements ProjectService {
     ProjectMemberRepository projectMemberRepository;
     AuthUtil authUtil;
     SubscriptionService subscriptionService;
+    ProjectTemplateService projectTemplateService;
 
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
-        if(subscriptionService.canCreateNewProject()){
+        if(!subscriptionService.canCreateNewProject()){
             throw new BadRequestException("User cannot create a New project with current Plan, Upgrade plan now");
         }
         Long userId=authUtil.getCurrentUserId();
@@ -65,6 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .build();
         projectMemberRepository.save(projectMember);
         project=projectRepository.save(project);
+        projectTemplateService.initializeProjectFromTemplate(project.getId());
         return projectMapper.toProjectResponse(project);
 
     }

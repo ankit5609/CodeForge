@@ -1,12 +1,16 @@
 package com.example.cybernode.ai.CodeForge.config;
 
 import io.minio.MinioClient;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.net.URL;
 
+
+@Getter
+@Setter
 @Configuration
 @ConfigurationProperties(prefix = "minio")
 public class StorageConfig {

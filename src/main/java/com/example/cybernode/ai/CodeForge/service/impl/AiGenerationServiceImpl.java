@@ -1,6 +1,8 @@
 package com.example.cybernode.ai.CodeForge.service.impl;
 
 import com.example.cybernode.ai.CodeForge.llm.PromptUtils;
+import com.example.cybernode.ai.CodeForge.llm.advisors.FileTreeContextAdvisor;
+import com.example.cybernode.ai.CodeForge.llm.tools.CodeGenerationTools;
 import com.example.cybernode.ai.CodeForge.security.AuthUtil;
 import com.example.cybernode.ai.CodeForge.service.AiGenerationService;
 import com.example.cybernode.ai.CodeForge.service.ProjectFileService;
@@ -28,6 +30,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ChatClient chatClient;
     private final AuthUtil authUtil;
     private final ProjectFileService projectFileService;
+    private final FileTreeContextAdvisor fileTreeContextAdvisor;
 
 
     private static final Pattern FILE_TAG_PATTERN =
@@ -46,12 +49,15 @@ public class AiGenerationServiceImpl implements AiGenerationService {
         );
 
         StringBuilder fullResponseBuffer=new StringBuilder();
+        CodeGenerationTools codeGenerationTools=new CodeGenerationTools(projectFileService,projectId);
 
         return chatClient.prompt()
                 .system(PromptUtils.CODE_GENERATION_SYSTEM_PROMPT)
                 .user(userMessage)
+                .tools(codeGenerationTools)
                 .advisors(advisorSpec -> {
                     advisorSpec.params(advisorParams);
+                    advisorSpec.advisors(fileTreeContextAdvisor);
                         }
                 )
                 .stream()
