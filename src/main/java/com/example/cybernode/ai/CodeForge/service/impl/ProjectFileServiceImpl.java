@@ -2,6 +2,7 @@ package com.example.cybernode.ai.CodeForge.service.impl;
 
 import com.example.cybernode.ai.CodeForge.dto.project.FileContentResponse;
 import com.example.cybernode.ai.CodeForge.dto.project.FileNode;
+import com.example.cybernode.ai.CodeForge.dto.project.FileTreeResponse;
 import com.example.cybernode.ai.CodeForge.entity.Project;
 import com.example.cybernode.ai.CodeForge.entity.ProjectFile;
 import com.example.cybernode.ai.CodeForge.error.ResourceNotFoundException;
@@ -39,9 +40,10 @@ public class ProjectFileServiceImpl implements ProjectFileService {
     private static final String BUCKET_NAME = "projects";
 
     @Override
-    public List<FileNode> getFileTree(Long projectId) {
+    public FileTreeResponse getFileTree(Long projectId) {
         List<ProjectFile> projectFileList = projectFileRepository.findByProjectId(projectId);
-        return projectFileMapper.toListOfFileNode(projectFileList);
+        List<FileNode> fileNodes=projectFileMapper.toListOfFileNode(projectFileList);
+        return new FileTreeResponse(fileNodes);
     }
 
     @Override

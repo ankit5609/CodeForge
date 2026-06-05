@@ -13,7 +13,7 @@ public interface UserMapper {
     UserProfileResponse toUserProfileResponse(User user);
 
     @Mapping(target="userId", source="id")
-    @Mapping(target = "projectRole", constant = "OWNER")
+    @Mapping(target = "role", constant = "OWNER")
     MemberResponse toMemberResponse(User owner);
 
 
