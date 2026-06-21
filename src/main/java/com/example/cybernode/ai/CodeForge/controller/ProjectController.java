@@ -1,8 +1,10 @@
 package com.example.cybernode.ai.CodeForge.controller;
 
+import com.example.cybernode.ai.CodeForge.dto.deploy.DeployResponse;
 import com.example.cybernode.ai.CodeForge.dto.project.ProjectRequest;
 import com.example.cybernode.ai.CodeForge.dto.project.ProjectResponse;
 import com.example.cybernode.ai.CodeForge.dto.project.ProjectSummaryResponse;
+import com.example.cybernode.ai.CodeForge.service.DeploymentService;
 import com.example.cybernode.ai.CodeForge.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final DeploymentService deploymentService;
 
     @GetMapping
     public ResponseEntity<List<ProjectSummaryResponse>> getMyProjects(){
@@ -48,4 +51,10 @@ public class ProjectController {
         projectService.softdelete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/deploy")
+    public ResponseEntity<DeployResponse> deployProject(@PathVariable Long id) {
+        return ResponseEntity.ok(deploymentService.deploy(id));
+    }
+
 }
