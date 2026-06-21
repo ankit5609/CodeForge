@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cybernode-proxy
+  namespace: cybernode-apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cybernode-proxy
+  template:
+    metadata:
+      labels:
+        app: cybernode-proxy
+    spec:
+      containers:
+        - name: proxy
+          image: cybernode-proxy:latest
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+          env:
+            - name: REDIS_URL
+              # Refers to the service in the same namespace
+              value: "redis://redis-service:6379"
+          ports:
+            - containerPort: 80
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cybernode-proxy-svc
+  namespace: cybernode-apps
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: cybernode-proxy
